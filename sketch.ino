@@ -123,15 +123,22 @@ void VL6180X_CLEAR_INTERRUPT()
 int VL6180X_POLL_RANGE_MEASUREMENT()
 {
     int range = 0;
+	uint8_t error_bit = 0;
     uint8_t reg_status = (VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RESULT_STATUS_INT_STATUS_GPIO) & 0x07);
 
 	Serial.println("Poll Loop"); 
     while (reg_status != 0x04 ){
         delay(1000);
         reg_status = VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RESULT_STATUS_INT_STATUS_GPIO) & 0x07;
-     	Serial.print(" reg_status : [ ");
-    	Serial.print(reg_status);
+  		error_bit = (reg_status >> 6);
+	   	Serial.print(" error_status : [ ");
+    	Serial.print(error_bit);
     	Serial.println(" ] ");
+		
+		if(error_bit >= 0 ){
+			Serial.println(" SENSOR ERROR ");
+			break;	
+		}
 
     }
     
