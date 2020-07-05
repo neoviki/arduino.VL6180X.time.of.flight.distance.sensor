@@ -23,7 +23,6 @@ void i2c_init()
 
 void set_pin_as_output()
 {  
-
     Wire.beginTransmission(ADDRESS_GPIO); 
     Wire.write(REG_ADDRESS_GPIO_DIRECTION);   
     Wire.write(ENABLE);  
@@ -62,7 +61,7 @@ uint8_t i2c_read8(uint8_t address)
 void VL6180X_INIT_REGISTERS()
 {
 
-    if (VL6180X_READ_BYTE(ADDRESS_VL6180X, 0x016) == 1){
+    if (VL6180X_READ_BYTE(ADDRESS_VL6180X, 0x016) == 0x01){
     //private registers
     
     VL6180X_WRITE_BYTE(ADDRESS_VL6180X, 0x0207, 0x01);
@@ -124,12 +123,16 @@ void VL6180X_CLEAR_INTERRUPT()
 int VL6180X_POLL_RANGE_MEASUREMENT()
 {
     int range = 0;
-    uint8_t reg_status = VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RESULT_STATUS_INT_STATUS_GPIO) & 0x07;
+    uint8_t reg_status = (VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RESULT_STATUS_INT_STATUS_GPIO) & 0x07);
 
-    //while (reg_status != 0x04 ){
-    while (reg_status == 0x04 ){
-        delay(20);
+	Serial.println("Poll Loop"); 
+    while (reg_status != 0x04 ){
+        delay(1000);
         reg_status = VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RESULT_STATUS_INT_STATUS_GPIO) & 0x07;
+     	Serial.print(" reg_status : [ ");
+    	Serial.print(reg_status);
+    	Serial.println(" ] ");
+
     }
     
     range = VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RES_RANGE_VAL); 
@@ -163,11 +166,13 @@ void setup() {
     enable_pin();
     delay(100);
     VL6180X_INIT_REGISTERS();
-    Serial.println("setup complete"); 
+    delay(2000);
+	Serial.println("setup complete"); 
 }
 
 
 void loop() {
+	Serial.println("Main Loop"); 
     int range = 0;
     VL6180X_START_RANGE_MEASUREMENT();
     range = VL6180X_POLL_RANGE_MEASUREMENT();
