@@ -21,11 +21,6 @@ void i2c_init()
   Wire.begin();   
 }
 
-void serial_mon_init(int baud_rate)
-{
-    Serial.begin(baud_rate);   
-}
-
 void set_pin_as_output()
 {  
 
@@ -131,7 +126,8 @@ int VL6180X_POLL_RANGE_MEASUREMENT()
     int range = 0;
     uint8_t reg_status = VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RESULT_STATUS_INT_STATUS_GPIO) & 0x07;
 
-    while (reg_status != 0x04 ){
+    //while (reg_status != 0x04 ){
+    while (reg_status == 0x04 ){
         delay(20);
         reg_status = VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RESULT_STATUS_INT_STATUS_GPIO) & 0x07;
     }
@@ -161,7 +157,7 @@ uint8_t VL6180X_READ_BYTE(uint8_t i2c_slave_address, uint16_t register_address)
 
 void setup() {
     i2c_init();
-    serial_mon_init( 115200 );
+    Serial.begin(9600);   
     Serial.println("setup begin"); 
     set_pin_as_output(); 
     enable_pin();
