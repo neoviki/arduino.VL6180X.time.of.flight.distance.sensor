@@ -128,7 +128,7 @@ int VL6180X_POLL_RANGE_MEASUREMENT()
 
 	Serial.println("Poll Loop"); 
     while (reg_status != 0x04 ){
-        delay(1000);
+        delay(100);
         reg_status = VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RESULT_STATUS_INT_STATUS_GPIO) & 0x07;
   		error_bit = (reg_status >> 6);
 	   	Serial.print(" error_status : [ ");
@@ -186,7 +186,7 @@ void loop() {
     Serial.print(" Range : [ ");
     Serial.print(range);
     Serial.println(" ] ");
-    delay(100);
+    delay(500);
 }
 
 
