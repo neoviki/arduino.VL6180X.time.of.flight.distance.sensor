@@ -12,6 +12,8 @@
 #define REG_ADDRESS_RES_RANGE_VAL                   0x062  
 #define REG_ADDRESS_INTERRUPT                       0x015
 
+#define VL6180X_MAX_RANGE_MM			200 /*200 mm*/
+#define VL6180X_MAX_RANGE_DECIMAL		255 /*8 bit*/
 
 #define ENABLE      0x01
 #define DISABLE     0x00
@@ -123,6 +125,7 @@ void VL6180X_CLEAR_INTERRUPT()
 int VL6180X_POLL_RANGE_MEASUREMENT()
 {
     int range = 0;
+	uint8_t reading = 0;
 	uint8_t error_bit = 0;
     uint8_t reg_status = (VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RESULT_STATUS_INT_STATUS_GPIO) & 0x07);
 
@@ -131,10 +134,7 @@ int VL6180X_POLL_RANGE_MEASUREMENT()
         delay(100);
         reg_status = VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RESULT_STATUS_INT_STATUS_GPIO) & 0x07;
   		error_bit = (reg_status >> 6);
-	   	Serial.print(" error_status : [ ");
-    	Serial.print(error_bit);
-    	Serial.println(" ] ");
-		
+
 		if(error_bit >= 0 ){
 			Serial.println(" SENSOR ERROR ");
 			break;	
@@ -142,8 +142,8 @@ int VL6180X_POLL_RANGE_MEASUREMENT()
 
     }
     
-    range = VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RES_RANGE_VAL); 
-    
+    reading = VL6180X_READ_BYTE(ADDRESS_VL6180X, REG_ADDRESS_RES_RANGE_VAL); 
+    range = (reading ) * ( VL6180X_MAX_RANGE_MM / VL6180X_MAX_RANGE_DECIMAL);
     VL6180X_CLEAR_INTERRUPT();
 
     return range;
@@ -183,7 +183,7 @@ void loop() {
     int range = 0;
     VL6180X_START_RANGE_MEASUREMENT();
     range = VL6180X_POLL_RANGE_MEASUREMENT();
-    Serial.print(" Range : [ ");
+    Serial.print(" Range ( mm ) : [ ");
     Serial.print(range);
     Serial.println(" ] ");
     delay(500);
